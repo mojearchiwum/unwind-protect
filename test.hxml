@@ -1,0 +1,10 @@
+-neko out/run.n
+
+-cp src/main/haxe
+-cp src/test/haxe
+
+-lib buddy
+
+-main net.parensoft.protect.MainTest
+
+-cmd neko out/run.n
