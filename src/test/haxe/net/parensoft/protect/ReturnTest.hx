@@ -68,5 +68,41 @@ class ReturnTest extends BuddySuite {
     });
 
 
+    describe("escape from protected block in a loop", {
+      it("should execute cleanup when break-ing", {
+        var control = [];
+
+        for (ind in 0...3) {
+          Protect.protect({
+            if (ind == 2) break;
+            control.push(Std.string(ind));
+          }, 
+          {
+            control.push(Std.string(ind) + "a");
+          });
+        }
+
+        control.should.containExactly(["0", "0a", "1", "1a", "2a"]);
+      });
+      it("should execute cleanup when continue-ing", {
+        var control = [];
+
+        for (ind in 0...3) {
+          Protect.protect({
+            if (ind % 2 == 0) continue;
+            control.push(Std.string(ind));
+          }, {
+            control.push(Std.string(ind) + "a");
+          });
+
+          
+        }
+
+        control.should.containExactly(["0a", "1", "1a", "2a"]);
+      });
+
+    });
+
+
   }
 }

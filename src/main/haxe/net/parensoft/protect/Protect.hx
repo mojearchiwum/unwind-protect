@@ -25,6 +25,11 @@ class Protect {
             ${ flags.returnsVoid ? macro { return; } : macro {} };
           case net.parensoft.protect.Protect.ProtectPass.ReturnValue(__protect_value):
             ${ flags.returnsValue ? macro { return __protect_value; } : macro {} };
+          case net.parensoft.protect.Protect.ProtectPass.Break:
+            ${ flags.breaks ? macro { break; } : macro {} };
+          case net.parensoft.protect.Protect.ProtectPass.Continue: 
+            ${ flags.continues ? macro { continue; } : macro {} };
+
         }
       }
       else {
@@ -33,16 +38,28 @@ class Protect {
     }
   }
 
-  private static function transform(expr: Expr, flags: TransformFlags): Expr {
+  private static function transform(expr: Expr, flags: TransformFlags, ?inLoop = false): Expr {
     return switch(expr) {
+      case macro break if (!inLoop):
+        flags.breaks = true;
+        macro throw net.parensoft.protect.Protect.ProtectPass.Break;
+      case macro continue if (!inLoop):
+        flags.continues = true;
+        macro throw net.parensoft.protect.Protect.ProtectPass.Continue;
       case macro return:
         flags.returnsVoid = true;
         macro throw net.parensoft.protect.Protect.ProtectPass.ReturnVoid;
       case macro return $val:
         flags.returnsValue = true;
         macro throw net.parensoft.protect.Protect.ProtectPass.ReturnValue($val);
+      case { expr: EFunction(_, _) }:
+        expr;
+      case { expr: EFor(it, body) }:
+        { pos: expr.pos, expr: EFor(it, transform(body, flags, true)) };
+      case { expr: EWhile(ecnd, exp, norm) }:
+        { pos: expr.pos, expr: EWhile(ecnd, transform(exp, flags, true), norm) };
       default: 
-        var trans = transform.bind(_, flags);
+        var trans = transform.bind(_, flags, inLoop);
         expr.map(trans);
         
     }
@@ -53,13 +70,16 @@ class Protect {
 private class TransformFlags {
   public var returnsValue(default, default): Bool = false;
   public var returnsVoid(default, default): Bool = false;
+  public var breaks(default, default): Bool = false;
+  public var continues(default, default): Bool = false;
 
   public function new() {}
 }
-
 
 enum ProtectPass {
   PassedOK;
   ReturnVoid;
   ReturnValue(value: Dynamic);
+  Break;
+  Continue;
 }
