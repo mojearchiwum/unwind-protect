@@ -1,8 +1,8 @@
 # unwind-protect, or try/finally for Haxe
 
-Usage:
+## Usage:
 
-Build macro (recommended):
+## Build macro (recommended):
 
 ```
 #!haxe
@@ -14,11 +14,11 @@ Build macro (recommended):
 
 ```
 
-CLEAN will **always** be executed when PROT exits. This includes normal completion or an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
+```CLEAN``` will **always** be executed when ```PROT``` exits. This includes normal completion or an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
 
 To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.ProtectSyntax``` interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
 
-Expression macro:
+## Expression macro:
 
 ```
 #!haxe
@@ -31,7 +31,26 @@ Protect.protect(
   CLEAN);
 ```
 
-As above, CLEAN is executed always whenever PROT exits.
+As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
+
+## Known limitations
+
+This uses exceptions internally, so things like this won't (yet) work:
+
+```
+#!haxe
+@protect {
+  protected: try {
+    return 1;
+  }
+  catch (e: Dynamic) {},
+  cleanup: CLEAN
+}
+```
+
+In this case ```CLEAN``` will get executed, but ```return 1``` **will get suppressed**.
+
+
 
 License: MIT
 
