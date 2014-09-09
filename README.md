@@ -35,21 +35,7 @@ As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
 
 ## Known limitations
 
-This uses exceptions internally, so things like this won't (yet) work:
-
-```
-#!haxe
-@protect {
-  protected: try {
-    return 1;
-  }
-  catch (e: Dynamic) {},
-  cleanup: CLEAN
-}
-```
-
-In this case ```CLEAN``` will get executed, but ```return 1``` **will get suppressed**.
-
+Value of the ```@protected``` expression is undefined.
 
 
 License: MIT
