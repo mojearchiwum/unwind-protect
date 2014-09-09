@@ -1,6 +1,7 @@
 package net.parensoft.protect;
 
 import haxe.macro.Expr;
+import haxe.macro.Context;
 using haxe.macro.ExprTools;
 
 class Protect {
@@ -58,6 +59,13 @@ class Protect {
         { pos: expr.pos, expr: EFor(it, transform(body, flags, true)) };
       case { expr: EWhile(ecnd, exp, norm) }:
         { pos: expr.pos, expr: EWhile(ecnd, transform(exp, flags, true), norm) };
+      case { expr: ETry(tryexp, catches) }:
+        var ncatches = catches.copy();
+        ncatches.unshift( { name: "__protect_e", 
+                            type: Context.toComplexType(Context.getType("net.parensoft.protect.Protect.ProtectPass")),
+                            expr: macro throw __protect_e 
+                          } );
+        { pos: expr.pos, expr: ETry(transform(tryexp, flags, inLoop), ncatches) };
       default: 
         var trans = transform.bind(_, flags, inLoop);
         expr.map(trans);

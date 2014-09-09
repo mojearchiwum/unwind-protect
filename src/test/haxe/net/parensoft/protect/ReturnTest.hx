@@ -65,6 +65,23 @@ class ReturnTest extends BuddySuite {
         run.should.throwValue("thrown");
 
       });
+
+      it("should handle return in try/catch(Dynamic) in prot", {
+        var control = [];
+
+        var fun = function() {
+          Protect.protect({
+            try return 1
+            catch (e: Dynamic) {}
+          }, {
+            // nothing
+          });
+
+          return 2;
+        }
+
+        fun().should.be(1);
+      });
     });
 
 
@@ -102,6 +119,8 @@ class ReturnTest extends BuddySuite {
       });
 
     });
+
+
 
 
   }
