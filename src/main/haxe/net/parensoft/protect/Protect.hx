@@ -60,7 +60,12 @@ class Protect {
       case { expr: EWhile(ecnd, exp, norm) }:
         { pos: expr.pos, expr: EWhile(ecnd, transform(exp, flags, true), norm) };
       case { expr: ETry(tryexp, catches) }:
-        var ncatches = catches.copy();
+        var ncatches = catches.map(function(cExp) {
+          return 
+            { name : cExp.name,
+              type : cExp.type, 
+              expr: transform(cExp.expr, flags, inLoop) };
+          });
         ncatches.unshift( { name: "__protect_e", 
                             type: (macro :net.parensoft.protect.Protect.ProtectPass),
                             expr: macro throw __protect_e 
