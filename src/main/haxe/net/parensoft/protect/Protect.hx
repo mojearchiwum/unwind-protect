@@ -62,7 +62,7 @@ class Protect {
       case { expr: ETry(tryexp, catches) }:
         var ncatches = catches.copy();
         ncatches.unshift( { name: "__protect_e", 
-                            type: Context.toComplexType(Context.getType("net.parensoft.protect.Protect.ProtectPass")),
+                            type: (macro :net.parensoft.protect.Protect.ProtectPass),
                             expr: macro throw __protect_e 
                           } );
         { pos: expr.pos, expr: ETry(transform(tryexp, flags, inLoop), ncatches) };
