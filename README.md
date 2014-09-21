@@ -37,6 +37,14 @@ As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
 
 Value of the ```@protected``` expression is undefined.
 
+Expression macros that expand to:
+
+* ```return```, ```break``` or ```continue``` expressions
+* loops
+* functions
+
+will not be handled and havoc may ensue.
+
 
 License: MIT
 
