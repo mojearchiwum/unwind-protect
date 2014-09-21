@@ -74,6 +74,7 @@ class InnerTest extends BuddySuite {
         Protect.protect({
           Protect.protect({
             // nothing here
+            1;
           }, {
             control.push("inner");
           });

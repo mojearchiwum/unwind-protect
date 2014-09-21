@@ -3,39 +3,40 @@ package net.parensoft.protect;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 using haxe.macro.ExprTools;
+import haxe.macro.ComplexTypeTools;
 
 class Protect {
 
   public static macro function protect(protected: Expr, cleanup: Expr) {
     var flags = new TransformFlags();
-    var transformed = transform(protected, flags);
+    var transformed = transform(expandMacros(protected), flags);
 
 
     return macro try {
       $transformed;
       throw net.parensoft.protect.Protect.ProtectPass.PassedOK;
     }
+    catch (__protect_exception: net.parensoft.protect.Protect.ProtectPass) {
+
+      $cleanup;
+
+      switch (__protect_exception) {
+        case net.parensoft.protect.Protect.ProtectPass.PassedOK:
+          {}
+        case net.parensoft.protect.Protect.ProtectPass.ReturnVoid:
+          ${ flags.returnsVoid ? macro { return; } : macro {} };
+        case net.parensoft.protect.Protect.ProtectPass.ReturnValue(__protect_value):
+          ${ flags.returnsValue ? macro { return __protect_value; } : macro {} };
+        case net.parensoft.protect.Protect.ProtectPass.Break:
+          ${ flags.breaks ? macro { break; } : macro {} };
+        case net.parensoft.protect.Protect.ProtectPass.Continue: 
+          ${ flags.continues ? macro { continue; } : macro {} };
+
+      }
+    }
     catch (__protect_exception: Dynamic) {
       $cleanup;
-      if (Std.is(__protect_exception, net.parensoft.protect.Protect.ProtectPass)) {
-        var __protect_exception_c: net.parensoft.protect.Protect.ProtectPass = cast __protect_exception;
-        switch (__protect_exception_c) {
-          case net.parensoft.protect.Protect.ProtectPass.PassedOK:
-            {}
-          case net.parensoft.protect.Protect.ProtectPass.ReturnVoid:
-            ${ flags.returnsVoid ? macro { return; } : macro {} };
-          case net.parensoft.protect.Protect.ProtectPass.ReturnValue(__protect_value):
-            ${ flags.returnsValue ? macro { return __protect_value; } : macro {} };
-          case net.parensoft.protect.Protect.ProtectPass.Break:
-            ${ flags.breaks ? macro { break; } : macro {} };
-          case net.parensoft.protect.Protect.ProtectPass.Continue: 
-            ${ flags.continues ? macro { continue; } : macro {} };
-
-        }
-      }
-      else {
-        throw __protect_exception;
-      }
+      throw __protect_exception;
     }
   }
 
@@ -66,8 +67,10 @@ class Protect {
               type : cExp.type, 
               expr: transform(cExp.expr, flags, inLoop) };
           });
-        ncatches.unshift( { name: "__protect_e", 
-                            type: (macro :net.parensoft.protect.Protect.ProtectPass),
+        if (ncatches.length > 0 && 
+            ComplexTypeTools.toString(ncatches[0].type) != "net.parensoft.protect.Protect.ProtectPass")
+          ncatches.unshift( { name: "__protect_e", 
+                            type: macro :net.parensoft.protect.Protect.ProtectPass,
                             expr: macro throw __protect_e 
                           } );
         { pos: expr.pos, expr: ETry(transform(tryexp, flags, inLoop), ncatches) };
@@ -77,6 +80,9 @@ class Protect {
         
     }
   }
+  
+  private static function expandMacros(ex: Expr)
+    return Context.getTypedExpr(Context.typeExpr(ex));
 
 }
 
