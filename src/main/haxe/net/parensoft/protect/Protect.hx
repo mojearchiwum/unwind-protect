@@ -9,7 +9,7 @@ class Protect {
 
   public static macro function protect(protected: Expr, cleanup: Expr) {
     var flags = new TransformFlags();
-    var transformed = transform(expandMacros(protected), flags);
+    var transformed = transform(Util.expandMacros(protected), flags);
 
 
     return macro try {
@@ -60,20 +60,30 @@ class Protect {
         { pos: expr.pos, expr: EFor(it, transform(body, flags, true)) };
       case { expr: EWhile(ecnd, exp, norm) }:
         { pos: expr.pos, expr: EWhile(ecnd, transform(exp, flags, true), norm) };
-      case { expr: ETry(tryexp, catches) }:
-        var ncatches = catches.map(function(cExp) {
-          return 
-            { name : cExp.name,
+      case { expr: ETry(tryexp, catches) }: {
+
+        if (catches.length > 0 && 
+            ComplexTypeTools.toString(catches[0].type) == "net.parensoft.protect.Protect.ProtectPass")
+          expr;
+        else {
+        
+          var ncatches = catches.map(function(cExp) {
+            return {
+              name : cExp.name,
               type : cExp.type, 
               expr: transform(cExp.expr, flags, inLoop) };
           });
-        if (ncatches.length > 0 && 
-            ComplexTypeTools.toString(ncatches[0].type) != "net.parensoft.protect.Protect.ProtectPass")
-          ncatches.unshift( { name: "__protect_e", 
-                            type: macro :net.parensoft.protect.Protect.ProtectPass,
-                            expr: macro throw __protect_e 
-                          } );
-        { pos: expr.pos, expr: ETry(transform(tryexp, flags, inLoop), ncatches) };
+
+          ncatches.unshift({
+            name: "__protect_e", 
+            type: macro :net.parensoft.protect.Protect.ProtectPass,
+            expr: macro throw __protect_e 
+          });
+
+          { pos: expr.pos, expr: ETry(transform(tryexp, flags, inLoop), ncatches) };
+
+        }
+      }
       default: 
         var trans = transform.bind(_, flags, inLoop);
         expr.map(trans);
@@ -81,13 +91,6 @@ class Protect {
     }
   }
   
-  private static function expandMacros(ex: Expr)
-#if macro
-    return Context.getTypedExpr(Context.typeExpr(ex));
-#else
-    throw "Available only for macros";
-#end
-
 }
 
 private class TransformFlags {
