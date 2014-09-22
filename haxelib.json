@@ -5,7 +5,7 @@
     "classPath": "src/main/haxe",
     "tags": ["try-finally", "unwind-protect", "cross", "utility"],
     "description": "unwind-protect aka try/finally for Haxe",
-    "version": "0.2.0",
-    "releasenote": "Expand macros inside the protected block",
+    "version": "0.2.1",
+    "releasenote": "refactor, introduce genSym()",
     "contributors": ["jszymanski"]
 }
