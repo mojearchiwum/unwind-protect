@@ -1,4 +1,4 @@
--neko out/run.n
+-cs out/
 
 -cp src/main/haxe
 -cp src/test/haxe
@@ -7,4 +7,4 @@
 
 -main net.parensoft.protect.MainTest
 
--cmd neko out/run.n
+-cmd mono out/bin/MainTest.exe
