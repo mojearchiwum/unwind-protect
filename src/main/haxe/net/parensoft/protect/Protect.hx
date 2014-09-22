@@ -82,7 +82,11 @@ class Protect {
   }
   
   private static function expandMacros(ex: Expr)
+#if macro
     return Context.getTypedExpr(Context.typeExpr(ex));
+#else
+    throw "Available only for macros";
+#end
 
 }
 
