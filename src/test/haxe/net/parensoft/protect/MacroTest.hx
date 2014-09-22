@@ -66,6 +66,42 @@ class MacroTest extends BuddySuite {
         control.should.containExactly(["enter", "clean"]);
       });
 
+
+      it("should handle macroed functions", {
+        var control = [];
+
+        Protect.protect({
+          var fn = SupportMacros.fun({ return "fun"; });
+
+          control.push(fn());
+
+        }, {});
+
+        control.should.containExactly(["fun"]);
+      });
+
+      it("should handle macroed loops", {
+        var control = [];
+
+        for (idx in 0...1) {
+
+          Protect.protect({
+            SupportMacros.times(1, {
+              control.push("loop");
+
+              continue;
+
+              control.push("not here!");
+            });
+
+          }, {});
+
+          control.push("outer");
+        }
+
+        control.should.containExactly(["loop", "outer"]);
+      });
+
     });
 
   }
