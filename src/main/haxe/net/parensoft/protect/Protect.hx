@@ -5,28 +5,33 @@ import haxe.macro.Context;
 using haxe.macro.ExprTools;
 import haxe.macro.ComplexTypeTools;
 
+import net.parensoft.protect.Util.*;
+
 class Protect {
 
   public static macro function protect(protected: Expr, cleanup: Expr) {
     var flags = new TransformFlags();
-    var transformed = transform(Util.expandMacros(protected), flags);
+    var transformed = transform(expandMacros(protected), flags);
+
+    var excName = genSym();
+    var protVName = genSym();
 
 
     return macro try {
       $transformed;
       throw net.parensoft.protect.Protect.ProtectPass.PassedOK;
     }
-    catch (__protect_exception: net.parensoft.protect.Protect.ProtectPass) {
+    catch ($excName: net.parensoft.protect.Protect.ProtectPass) {
 
       $cleanup;
 
-      switch (__protect_exception) {
+      switch ($i{excName}) {
         case net.parensoft.protect.Protect.ProtectPass.PassedOK:
           {}
         case net.parensoft.protect.Protect.ProtectPass.ReturnVoid:
           ${ flags.returnsVoid ? macro { return; } : macro {} };
-        case net.parensoft.protect.Protect.ProtectPass.ReturnValue(__protect_value):
-          ${ flags.returnsValue ? macro { return __protect_value; } : macro {} };
+        case net.parensoft.protect.Protect.ProtectPass.ReturnValue($i{protVName}):
+          ${ flags.returnsValue ? macro { return $i{protVName}; } : macro {} };
         case net.parensoft.protect.Protect.ProtectPass.Break:
           ${ flags.breaks ? macro { break; } : macro {} };
         case net.parensoft.protect.Protect.ProtectPass.Continue: 
@@ -34,9 +39,9 @@ class Protect {
 
       }
     }
-    catch (__protect_exception: Dynamic) {
+    catch ($excName: Dynamic) {
       $cleanup;
-      throw __protect_exception;
+      throw $i{excName};
     }
   }
 
@@ -74,10 +79,12 @@ class Protect {
               expr: transform(cExp.expr, flags, inLoop) };
           });
 
+          var excName = genSym();
+
           ncatches.unshift({
-            name: "__protect_e", 
+            name: excName,
             type: macro :net.parensoft.protect.Protect.ProtectPass,
-            expr: macro throw __protect_e 
+            expr: macro throw $i{excName}
           });
 
           { pos: expr.pos, expr: ETry(transform(tryexp, flags, inLoop), ncatches) };
