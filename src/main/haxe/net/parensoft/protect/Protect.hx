@@ -9,9 +9,14 @@ import net.parensoft.protect.Util.*;
 
 class Protect {
 
-  public static macro function protect(protected: Expr, cleanup: Expr) {
+  public static macro function protect(protected: Expr, cleanup: Expr)
+    return protectBuild(expandMacros(protected), cleanup, genSym());
+
+  @:allow(net.parensoft.protect.Scope)
+ #if macro
+  private static function protectBuild(protected: Expr, cleanup: Expr, statusName: String) {
     var flags = new TransformFlags();
-    var transformed = transform(expandMacros(protected), flags);
+    var transformed = transform(protected, flags);
 
     var excName = genSym();
     var protVName = genSym();
@@ -22,6 +27,8 @@ class Protect {
       throw net.parensoft.protect.Protect.ProtectPass.PassedOK;
     }
     catch ($excName: net.parensoft.protect.Protect.ProtectPass) {
+
+      var $statusName = true;
 
       $cleanup;
 
@@ -40,10 +47,17 @@ class Protect {
       }
     }
     catch ($excName: Dynamic) {
+      var $statusName = false;
+
       $cleanup;
+
       throw $i{excName};
     }
   }
+#else
+  private static function protectBuild(protected: Expr, cleanup: Expr, statusName: String)
+    throw "Must be called from a macro";
+#end
 
   private static function transform(expr: Expr, flags: TransformFlags, ?inLoop = false): Expr {
     return switch(expr) {
