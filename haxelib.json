@@ -5,7 +5,7 @@
     "classPath": "src/main/haxe",
     "tags": ["try-finally", "unwind-protect", "cross", "utility"],
     "description": "unwind-protect aka try/finally for Haxe",
-    "version": "0.1.0",
-    "releasenote": "execute cleanup on leaving with exception, return, break or continue",
+    "version": "0.2.0",
+    "releasenote": "Expand macros inside the protected block",
     "contributors": ["jszymanski"]
 }
