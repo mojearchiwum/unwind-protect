@@ -31,7 +31,7 @@ class Scope {
       case macro @SCOPE($when) $expr:
         ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() try $expr catch (_: Dynamic) {} }));
       default:
-        ret.push(exp);
+        ret.push(expandMacros(exp));
     }
 
     var statusName = genSym();
