@@ -28,7 +28,7 @@ class Protect {
     }
     catch ($excName: net.parensoft.protect.Protect.ProtectPass) {
 
-      var $statusName = true;
+      var $statusName: Null<Bool> = true;
 
       $cleanup;
 
@@ -47,7 +47,7 @@ class Protect {
       }
     }
     catch ($excName: Dynamic) {
-      var $statusName = false;
+      var $statusName: Null<Bool> = false;
 
       $cleanup;
 
