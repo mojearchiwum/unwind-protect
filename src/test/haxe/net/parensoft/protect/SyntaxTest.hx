@@ -43,6 +43,18 @@ class SyntaxText extends BuddySuite implements ProtectSyntax {
         
         control.should.containExactly(["inner", "outer"]);
       });
+
+      it("should observe scope syntax", {
+        var control = [];
+
+        try {
+          @scope control.push("two");
+          control.push("one");
+        }
+
+        control.should.containExactly(["one", "two"]);
+      });
+
     });
   }
 }
