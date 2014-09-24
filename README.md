@@ -34,7 +34,16 @@ Protect.protect(
   CLEAN);
 ```
 
-As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
+```CLEAN``` will **always** be executed when ```PROT``` exits. This includes normal completion or
+an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
+
+To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.ProtectSyntax```
+interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
+
+Any abrupt exit from the ```CLEAN``` expression will shadow the previous abrupt exit from the ```PROT```
+expression, if any.
+
+
 
 ### Scope exits:
 
@@ -111,10 +120,7 @@ If ```@CLOSES``` is used instead of ```@closes```, any exceptions thrown by the 
 }
 
 ```
-
-```CLEAN``` will **always** be executed when ```PROT``` exits. This includes normal completion or an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
-
-To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.ProtectSyntax``` interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
+As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
 
 ### Scope exit, autoclose variables:
 
