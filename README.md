@@ -19,22 +19,6 @@ The library's name is inspired by the
 
 ## Usage:
 
-## Build macro:
-
-```
-#!haxe
-
-@protect {
-  protected: PROT,
-  cleanup: CLEAN
-}
-
-```
-
-```CLEAN``` will **always** be executed when ```PROT``` exits. This includes normal completion or an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
-
-To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.ProtectSyntax``` interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
-
 ## Expression macro:
 
 ### Basic unwind/protect:
@@ -86,6 +70,9 @@ will be silently dropped.
 
 ```Scope.withExits()``` is implemented with ```Protect.protect()```, so all relevant limitations apply.
 
+Any scope exit expression must be so declared directly inside a block, that is not in an ```if``` or whatever
+else.
+
 ### Autoclose variables:
 
 Autoclose variable is a special case of scope exit expression. If a variable(s) declaration is marked with
@@ -110,6 +97,29 @@ It is possible to specify the name of the function to be called instead of the d
 if a variable is annotated with ```@closes("aMethod")```, its ```aMethod()``` function will be called.
 
 If ```@CLOSES``` is used instead of ```@closes```, any exceptions thrown by the call will be silently dropped.
+
+## Build macro:
+
+### Basic unwind/protect:
+
+```
+#!haxe
+
+@protect {
+  protected: PROT,
+  cleanup: CLEAN
+}
+
+```
+
+```CLEAN``` will **always** be executed when ```PROT``` exits. This includes normal completion or an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
+
+To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.ProtectSyntax``` interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
+
+### Scope exit, autoclose variables:
+
+No difference from the expression macro, the block doesn't need any metadata, if any annotated 
+variables/expressions are found inside, the macro will work.
 
 ## Known limitations
 
