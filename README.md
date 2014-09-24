@@ -86,6 +86,31 @@ will be silently dropped.
 
 ```Scope.withExits()``` is implemented with ```Protect.protect()```, so all relevant limitations apply.
 
+### Autoclose variables:
+
+Autoclose variable is a special case of scope exit expression. If a variable(s) declaration is marked with
+```closes```, when the scope is exited the object it references will have it's ```close()``` method
+called. If several variables are declared in one ```var``` expression, declarations will be split and each
+one will have its autoclose code generated. That is:
+```
+#!haxe
+@closes var var1 = expr1,
+            var2 = expr2;
+```
+is equal to:
+```
+#!haxe
+var var1 = expr1;
+@scope var1.close();
+var var2 = expr2;
+@scope var2.close();
+```
+
+It is possible to specify the name of the function to be called instead of the default ```close()```, that is
+if a variable is annotated with ```@closes("aMethod")```, its ```aMethod()``` function will be called.
+
+If ```@CLOSES``` is used instead of ```@closes```, any exceptions thrown by the call will be silently dropped.
+
 ## Known limitations
 
 Value of the ```@protected``` expression is undefined.
