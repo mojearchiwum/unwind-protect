@@ -12,7 +12,7 @@ This library does not extend ```try``` syntax, but
 introduces its own operator and syntax
 for this purpose.
 
-The library's name is also inspired by the 
+The library's name is inspired by the 
 ```UNWIND-PROTECT``` operator
 [found](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_unwind.htm#unwind-protect) in Common Lisp.
 
@@ -37,6 +37,8 @@ To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.Pr
 
 ## Expression macro:
 
+### Basic unwind/protect:
+
 ```
 #!haxe
 import net.parensoft.protect.Protect;
@@ -50,6 +52,40 @@ Protect.protect(
 
 As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
 
+### Scope exits:
+
+```
+#!haxe
+Scope.withExits({
+    expr1;
+    expr2;
+    @scope(true) expr3;
+    @scope expr4;
+    expr5;
+    });
+```
+
+Expressions annotated with ```@scope``` will not be executed right away, but queued for execution
+upon leaving the scope instead. The ```@scope``` meta accepts the following arguments:
+
+* ```true``` for expressions to be executed when the block exits normally, which includes ```return```,
+  ```break``` and ```continue```
+* ```false``` for expressions to be executed when the block exits with an exception
+* ```null``` for expressions to be executed everytime the block exits
+
+```@scope``` without arguments is equal to ```@scope(null)```.
+
+The eligible expressions will be executed in reverse lexical order.
+
+Scope exit expressions may not contain ```return```, ```break``` or ```continue``` statements
+(for now, ```return``` **won't** cause a compilation error). If any throws an exception, the subsequent
+ones **will not** be executed.
+
+If uppercase ```@SCOPE``` is used instead of ```@scope```, exceptions from thus annotated expression
+will be silently dropped.
+
+```Scope.withExits()``` is implemented with ```Protect.protect()```, so all relevant limitations apply.
+
 ## Known limitations
 
 Value of the ```@protected``` expression is undefined.
@@ -58,12 +94,11 @@ Value of the ```@protected``` expression is undefined.
 
 09/22/14: 0.2.0 Expand macros inside the protected block
 
-09/22/08: 0.1.0 First version, support return, break, continue
+09/08/14: 0.1.0 First version, support return, break, continue
 inside the protected block.
 
 ## Todo:
 
-* Scope exit
 * Autoclose, like ```@autoclose var file = File.read(path)```
 
 ### License: MIT
