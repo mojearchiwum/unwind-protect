@@ -19,7 +19,7 @@ The library's name is inspired by the
 
 ## Usage:
 
-## Expression macro:
+## Expression macros:
 
 ### Basic unwind/protect:
 
@@ -27,7 +27,6 @@ The library's name is inspired by the
 #!haxe
 import net.parensoft.protect.Protect;
 
-....
 
 Protect.protect(
   PROT,
@@ -37,8 +36,6 @@ Protect.protect(
 ```CLEAN``` will **always** be executed when ```PROT``` exits. This includes normal completion or
 an abrupt exit with an exception, or a ```return```, ```break``` or ```continue``` statement.
 
-To use ```@protect``` the class _must_ implement the ```net.parensoft.protect.ProtectSyntax```
-interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
 
 Any abrupt exit from the ```CLEAN``` expression will shadow the previous abrupt exit from the ```PROT```
 expression, if any.
@@ -49,6 +46,9 @@ expression, if any.
 
 ```
 #!haxe
+import net.parensoft.protect.Scope;
+
+
 Scope.withExits({
     expr1;
     expr2;
@@ -107,7 +107,10 @@ if a variable is annotated with ```@closes("aMethod")```, its ```aMethod()``` fu
 
 If ```@CLOSES``` is used instead of ```@closes```, any exceptions thrown by the call will be silently dropped.
 
-## Build macro:
+## Build macros:
+
+To use the build macros the class _must_ implement the ```net.parensoft.protect.ProtectSyntax```
+interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.SyntaxBuilder.build())```
 
 ### Basic unwind/protect:
 
