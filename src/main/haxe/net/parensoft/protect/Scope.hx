@@ -30,6 +30,34 @@ class Scope {
         ret.push(macro $i{arrName}.unshift({ fail: null, run: function() try $expr catch (_: Dynamic) {} }));
       case macro @SCOPE($when) $expr:
         ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() try $expr catch (_: Dynamic) {} }));
+      case { expr: EMeta({ name: "closes", params: []}, { expr: EVars(vars), pos: pos }) }: {
+        ret.push({ expr: EVars(vars), pos: pos });
+        for (vardecl in vars) {
+          ret.push(macro $i{arrName}.unshift({ fail: null, run: function() $i{vardecl.name}.close() }));
+        }
+      }
+      case { expr: EMeta({ name: "closes", params: [ { expr: EConst(CString(func)) } ]},
+                         { expr: EVars(vars), pos: pos }) }: {
+        for (vardecl in vars) {
+          ret.push({ expr: EVars([ vardecl ]), pos: pos });
+          ret.push(macro $i{arrName}.unshift({ fail: null, run: function() $i{vardecl.name}.$func() }));
+        }
+      }
+      case { expr: EMeta({ name: "CLOSES", params: []}, { expr: EVars(vars), pos: pos }) }: {
+        ret.push({ expr: EVars(vars), pos: pos });
+        for (vardecl in vars) {
+          ret.push(macro $i{arrName}.unshift(
+                { fail: null, run: function() try $i{vardecl.name}.close() catch(_: Dynamic) {} }));
+        }
+      }
+      case { expr: EMeta({ name: "CLOSES", params: [ { expr: EConst(CString(func)) } ]},
+                         { expr: EVars(vars), pos: pos }) }: {
+        for (vardecl in vars) {
+          ret.push({ expr: EVars([ vardecl ]), pos: pos });
+          ret.push(macro $i{arrName}.unshift(
+                { fail: null, run: function() try $i{vardecl.name}.$func() catch (_: Dynamic) {} }));
+        }
+      }
       default:
         ret.push(expandMacros(exp));
     }

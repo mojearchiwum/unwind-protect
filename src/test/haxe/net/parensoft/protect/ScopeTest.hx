@@ -47,8 +47,39 @@ class ScopeTest extends BuddySuite {
         control.should.containExactly(["start", "false", "null", "out"]);
       });
 
+      it("should observe autoclose variables", {
+
+        var control = [];
+
+        Scope.withExits({
+          @closes var closed = {
+            close: function() control.push("close")
+          };
+
+          control.push("start");
+        });
+
+        control.should.containExactly(["start", "close"]);
+      });
+
+      it("should observe autoclose variables with named close func", {
+
+        var control = [];
+
+        Scope.withExits({
+          @closes("dispose") var closed = {
+            dispose: function() control.push("close")
+          };
+
+          control.push("start");
+        });
+
+        control.should.containExactly(["start", "close"]);
+      });
+
     });
 
   }
 
 }
+
