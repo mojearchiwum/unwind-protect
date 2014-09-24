@@ -3,9 +3,9 @@
     "url": "https://bitbucket.org/parensoft/unwind-protect",
     "license": "MIT",
     "classPath": "src/main/haxe",
-    "tags": ["try-finally", "unwind-protect", "cross", "utility"],
+    "tags": ["try-finally", "unwind-protect", "cross", "utility", "autoclose", "scope"],
     "description": "unwind-protect aka try/finally for Haxe",
-    "version": "0.2.1",
-    "releasenote": "refactor, introduce genSym()",
+    "version": "0.3.0",
+    "releasenote": "scope exits, autoclose variables (see readme)",
     "contributors": ["jszymanski"]
 }

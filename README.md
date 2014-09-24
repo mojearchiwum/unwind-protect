@@ -127,6 +127,8 @@ Value of the ```@protected``` expression is undefined.
 
 ## Changes:
 
+09/25/14: 0.3.0 Scope exits and autoclose variables
+
 09/22/14: 0.2.0 Expand macros inside the protected block
 
 09/08/14: 0.1.0 First version, support return, break, continue
