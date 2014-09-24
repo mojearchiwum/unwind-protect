@@ -17,6 +17,10 @@ class SyntaxBuilder {
     switch (field.kind) {
       case FFun(fun): 
         transform(fun.expr);
+      case FVar(_, e):
+        transform(e);
+      case FProp(_, _, _, e):
+        transform(e);
       default: {}
     }
 
