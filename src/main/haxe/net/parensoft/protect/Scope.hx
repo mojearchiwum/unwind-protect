@@ -14,7 +14,7 @@ class Scope {
       case { expr: EBlock(el) }: {
         transform(el);
       }
-      default: Context.error("Context.withExits requires a block", ex.pos);
+      default: Context.error("Scope.withExits requires a block", ex.pos);
     }
 
 #if macro
