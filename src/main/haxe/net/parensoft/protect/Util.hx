@@ -2,6 +2,7 @@ package net.parensoft.protect;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Type;
 
 class Util {
 
@@ -21,6 +22,20 @@ class Util {
     return '${base}_${genSymCounter}';
   }
 
-
-
 }
+
+#if macro
+abstract TypedExpression(TypedExpr) from TypedExpr to TypedExpr {
+  
+  public function new(aThis: TypedExpr) this = aThis;
+
+  @:from public static function fromExpr(anExpr: Expr)
+    return new TypedExpression(Context.typeExpr(anExpr));
+
+  @:to public function toExpr()
+    return Context.getTypedExpr(this);
+
+  public function getType()
+    return this.t;
+}
+#end
