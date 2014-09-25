@@ -12,6 +12,10 @@ This library does not extend ```try``` syntax, but
 introduces its own operator and syntax
 for this purpose.
 
+This library also adds a scope exit syntax, similar to what is [found](http://dlang.org/statement.html#ScopeGuardStatement)
+in the D language, and autoclose variables, similar to C#'s ```using``` or Java's ```try```-with-resources, but with
+a different syntax.
+
 The library's name is inspired by the 
 ```UNWIND-PROTECT``` operator
 [found](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_unwind.htm#unwind-protect) in Common Lisp.
@@ -58,6 +62,8 @@ Scope.withExits({
     });
 ```
 
+The only parameter to ```Scope.withExits()``` must be a block expression.
+
 Expressions annotated with ```@scope``` will not be executed right away, but queued for execution
 upon leaving the scope instead. The ```@scope``` meta accepts the following arguments:
 
@@ -70,8 +76,8 @@ upon leaving the scope instead. The ```@scope``` meta accepts the following argu
 
 The eligible expressions will be executed in reverse lexical order.
 
-Scope exit expressions may not contain ```return```, ```break``` or ```continue``` statements
-(for now, ```return``` **won't** cause a compilation error). If any throws an exception, the subsequent
+Scope exit expressions may not contain ```return```, ```break``` or ```continue``` statements.
+If any throws an exception, the subsequent
 ones **will not** be executed.
 
 If uppercase ```@SCOPE``` is used instead of ```@scope```, exceptions from thus annotated expression
@@ -152,6 +158,8 @@ variables/expressions are found inside, the macro will work.
 Value of the ```@protected``` expression is undefined.
 
 ## Changes:
+
+09/25/14: 0.3.1 Disallow return in scope exits, add new protect syntax
 
 09/25/14: 0.3.0 Scope exits and autoclose variables
 

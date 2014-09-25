@@ -4,6 +4,8 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import net.parensoft.protect.Util.*;
 
+using haxe.macro.ExprTools;
+
 
 class Scope {
 
@@ -23,13 +25,15 @@ class Scope {
 
     for (exp in el) switch (exp) {
       case macro @scope $expr:
-        ret.push(macro $i{arrName}.unshift({ fail: null, run: function() $expr }));
+        ret.push(macro $i{arrName}.unshift({ fail: null, run: function() ${checkReturns(expandMacros(expr))} }));
       case macro @scope($when) $expr:
-        ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() $expr }));
+        ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() ${checkReturns(expandMacros(expr))} }));
       case macro @SCOPE $expr:
-        ret.push(macro $i{arrName}.unshift({ fail: null, run: function() try $expr catch (_: Dynamic) {} }));
+        ret.push(macro $i{arrName}.unshift(
+              { fail: null, run: function() try ${checkReturns(expandMacros(expr))} catch (_: Dynamic) {} }));
       case macro @SCOPE($when) $expr:
-        ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() try $expr catch (_: Dynamic) {} }));
+        ret.push(macro $i{arrName}.unshift(
+              { fail: $when, run: function() try ${checkReturns(expandMacros(expr))} catch (_: Dynamic) {} }));
       case { expr: EMeta({ name: "closes", params: []}, { expr: EVars(vars), pos: pos }) }: {
         for (vardecl in vars) {
           ret.push({ expr: EVars([ vardecl ]), pos: pos });
@@ -77,6 +81,15 @@ class Scope {
 
     };
   }
+
+
+  private static function checkReturns(ex: Expr) 
+    return switch(ex) {
+      case { expr: EReturn(_) }: Context.fatalError("return not allowed in scope exits", ex.pos);
+      case { expr: EFunction(_, _) }: ex;
+      default: ex.map(checkReturns);
+    }
+
 #else
   private static function transform(el: Array<Expr>) 
     throw "Only for macros";
