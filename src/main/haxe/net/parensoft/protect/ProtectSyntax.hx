@@ -45,13 +45,27 @@ class SyntaxBuilder {
   static function transformBlock(el: Array<Expr>) {
     var hasExits = false;
 
-    for (ex in el) switch (ex) {
-      case macro @scope $x, macro @SCOPE $x, macro @closes $x, macro @CLOSES $x:
-        hasExits = true;
-      case macro @scope($v) $x, macro @SCOPE($v) $x,
-           macro @closes($v) $x, macro @CLOSES($v) $x:
-        hasExits = true;
-      default: {}
+    var idx = 0;
+
+    while(idx < el.length) {
+      var ex = el[idx];
+      switch (ex) {
+        case macro @scope $x, macro @SCOPE $x, macro @closes $x, macro @CLOSES $x:
+          hasExits = true;
+        case macro @scope($v) $x, macro @SCOPE($v) $x,
+             macro @closes($v) $x, macro @CLOSES($v) $x:
+          hasExits = true;
+        case macro @protect $prot:
+        if (idx + 1 < el.length) switch(el[idx + 1]) {
+          case macro @clean $clean:
+            el[idx].expr = (macro {}).expr;
+            el[idx + 1].expr = (macro net.parensoft.protect.Protect.protect($prot, $clean)).expr;
+            idx++;
+          default: {}
+        }
+        default: {}
+      }
+      idx++;
     }
 
     if (hasExits) return macro net.parensoft.protect.Scope.withExits($b{el});

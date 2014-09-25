@@ -125,6 +125,23 @@ interface or be annotated with ```@:build(net.parensoft.protect.ProtectSyntax.Sy
 ```
 As above, ```CLEAN``` is executed always whenever ```PROT``` exits.
 
+Alternatively, **only** directly in a block, this somewhat hacky syntax is also available:
+```
+#!haxe
+if(somecond) {
+  expr0;
+  @protect {
+    expr1;
+    expr2;
+  }
+  @clean {
+    expr3;
+    expr4;
+  }
+  expr5;
+}
+```
+
 ### Scope exit, autoclose variables:
 
 No difference from the expression macro, the block doesn't need any metadata, if any annotated 

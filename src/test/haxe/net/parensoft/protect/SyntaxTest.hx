@@ -23,6 +23,23 @@ class SyntaxText extends BuddySuite implements ProtectSyntax {
         control.should.containExactly(["prot", "clean"]);
       });
 
+      it("should work with hacky syntax @protect", {
+        var control = [];
+
+        try {
+          control.push("entry");
+          @protect {
+            control.push("prot");
+            throw "needed";
+          }
+          @clean control.push("clean");
+          control.push("no way here");
+        }
+        catch (e: String) { if ("needed" != e) throw e; }
+
+        control.should.containExactly(["entry", "prot", "clean"]);
+      });
+
       it("should expand nested prot-in-prot", {
         var control = [];
 
