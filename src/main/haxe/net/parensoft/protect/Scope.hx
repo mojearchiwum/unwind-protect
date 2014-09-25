@@ -31,8 +31,8 @@ class Scope {
       case macro @SCOPE($when) $expr:
         ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() try $expr catch (_: Dynamic) {} }));
       case { expr: EMeta({ name: "closes", params: []}, { expr: EVars(vars), pos: pos }) }: {
-        ret.push({ expr: EVars(vars), pos: pos });
         for (vardecl in vars) {
+          ret.push({ expr: EVars([ vardecl ]), pos: pos });
           ret.push(macro $i{arrName}.unshift({ fail: null, run: function() $i{vardecl.name}.close() }));
         }
       }
@@ -44,8 +44,8 @@ class Scope {
         }
       }
       case { expr: EMeta({ name: "CLOSES", params: []}, { expr: EVars(vars), pos: pos }) }: {
-        ret.push({ expr: EVars(vars), pos: pos });
         for (vardecl in vars) {
+          ret.push({ expr: EVars([ vardecl ]), pos: pos });
           ret.push(macro $i{arrName}.unshift(
                 { fail: null, run: function() try $i{vardecl.name}.close() catch(_: Dynamic) {} }));
         }
