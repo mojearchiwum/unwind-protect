@@ -44,7 +44,8 @@ an abrupt exit with an exception, or a ```return```, ```break``` or ```continue`
 Any abrupt exit from the ```CLEAN``` expression will shadow the previous abrupt exit from the ```PROT```
 expression, if any.
 
-
+The value of the ```Protect.protect(PROT, CLEAN)``` expression is the value of the ```PROT``` expression
+**if it completes**; otherwise it's unspecified (and unreachable as well).
 
 ### Scope exits:
 
@@ -87,6 +88,9 @@ will be silently dropped.
 
 Any scope exit expression must be so declared directly inside a block, that is not in an ```if``` or whatever
 else.
+
+The value of the ```Scope.withExits()``` expression is the value of the last expression in the transformed
+block, or, if the block ends with ```@scope``` expression, unspecified.
 
 ### Autoclose variables:
 
@@ -153,11 +157,10 @@ if(somecond) {
 No difference from the expression macro, the block doesn't need any metadata, if any annotated 
 variables/expressions are found inside, the macro will work.
 
-## Known limitations
-
-Value of the ```@protected``` expression is undefined.
 
 ## Changes:
+
+09/27/14: 0.4.0 Protected expressions (thus also blocks with scope exits) now have proper values
 
 09/25/14: 0.3.1 Disallow return in scope exits, add new protect syntax
 
@@ -168,9 +171,6 @@ Value of the ```@protected``` expression is undefined.
 09/08/14: 0.1.0 First version, support return, break, continue
 inside the protected block.
 
-## Todo:
-
-* Autoclose, like ```@autoclose var file = File.read(path)```
 
 ### License: MIT
 
