@@ -82,14 +82,14 @@ class Scope {
     };
     */
 
-    var prep = expandMacros({ expr: (macro {
+    var typed: Util.TypedExpression = { expr: (macro {
       var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
 
       $b{ret};
-    }).expr, pos: mpos});
+    }).expr, pos: mpos};
 
     var block;
-    switch(prep.expr) {
+    switch((typed: Expr).expr) {
       case EBlock([_, { expr: EBlock(unmacroed), pos: bpos }]):
         block = { expr: EBlock(unmacroed), pos: bpos };
       default: throw "internal error";
@@ -104,7 +104,7 @@ class Scope {
 
         for ($i{counter} in $i{arrName}) if ($i{counter}.fail != !$i{statusName}) ($i{counter}.run)();
 
-      }, statusName)}
+      }, statusName, typed.getType())}
 
     }, arrName);
 

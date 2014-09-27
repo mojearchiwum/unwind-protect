@@ -4,55 +4,84 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 using haxe.macro.ExprTools;
 import haxe.macro.ComplexTypeTools;
+import haxe.macro.Type;
 
 import net.parensoft.protect.Util.*;
 
 class Protect {
 
-  public static macro function protect(protected: Expr, cleanup: Expr)
-    return protectBuild(expandMacros(protected), cleanup, genSym());
+  public static macro function protect(protected: Expr, cleanup: Expr) {
+
+    var typedProt: Util.TypedExpression = protected;
+
+    return protectBuild(typedProt, cleanup, genSym(), typedProt.getType());
+  }
 
   @:allow(net.parensoft.protect.Scope)
- #if macro
-  private static function protectBuild(protected: Expr, cleanup: Expr, statusName: String) {
+#if macro
+  private static function protectBuild(protected: Expr, cleanup: Expr, statusName: String, type: Type) {
     var flags = new TransformFlags();
     var transformed = transform(protected, flags);
 
     var excName = genSym();
     var protVName = genSym();
 
+    var isVoid = false;
 
-    return macro try {
-      $transformed;
-      throw net.parensoft.protect.Protect.ProtectPass.PassedOK;
+    var defvar = switch(type) {
+      case TAbstract(t, _):
+        switch(t.get()) {
+          case { module: "StdTypes", pack: [], name: "Int" }: macro 0;
+          case { module: "StdTypes", pack: [], name: "Float" }: macro 0.0;
+          case { module: "StdTypes", pack: [], name: "Bool" }: macro false;
+          case { module: "StdTypes", pack: [], name: "Void" }: isVoid = true; macro false;
+          default: macro null;
+        }
+      default: macro null;
+
     }
-    catch ($excName: net.parensoft.protect.Protect.ProtectPass) {
 
-      var $statusName: Null<Bool> = true;
+    var retName = genSym();
 
-      $cleanup;
+    return macro {
 
-      switch ($i{excName}) {
-        case net.parensoft.protect.Protect.ProtectPass.PassedOK:
-          {}
-        case net.parensoft.protect.Protect.ProtectPass.ReturnVoid:
-          ${ flags.returnsVoid ? macro { return; } : macro {} };
-        case net.parensoft.protect.Protect.ProtectPass.ReturnValue($i{protVName}):
-          ${ flags.returnsValue ? macro { return $i{protVName}; } : macro {} };
-        case net.parensoft.protect.Protect.ProtectPass.Break:
-          ${ flags.breaks ? macro { break; } : macro {} };
-        case net.parensoft.protect.Protect.ProtectPass.Continue: 
-          ${ flags.continues ? macro { continue; } : macro {} };
+      var $retName = ${defvar};
 
+      try {
+        ${ if(isVoid) macro $transformed else macro $i{retName} = $transformed };
+        throw net.parensoft.protect.Protect.ProtectPass.PassedOK;
       }
-    }
-    catch ($excName: Dynamic) {
-      var $statusName: Null<Bool> = false;
+      catch ($excName: net.parensoft.protect.Protect.ProtectPass) {
+  
+        var $statusName: Null<Bool> = true;
+  
+        $cleanup;
+  
+        switch ($i{excName}) {
+          case net.parensoft.protect.Protect.ProtectPass.PassedOK:
+            {}
+          case net.parensoft.protect.Protect.ProtectPass.ReturnVoid:
+            ${ flags.returnsVoid ? macro { return; } : macro {} };
+          case net.parensoft.protect.Protect.ProtectPass.ReturnValue($i{protVName}):
+            ${ flags.returnsValue ? macro { return $i{protVName}; } : macro {} };
+          case net.parensoft.protect.Protect.ProtectPass.Break:
+            ${ flags.breaks ? macro { break; } : macro {} };
+          case net.parensoft.protect.Protect.ProtectPass.Continue: 
+            ${ flags.continues ? macro { continue; } : macro {} };
+  
+        }
+      }
+      catch ($excName: Dynamic) {
+        var $statusName: Null<Bool> = false;
+  
+        $cleanup;
+  
+        throw $i{excName};
+      }
+  
+      ${ if(isVoid) macro {} else macro $i{retName} };
 
-      $cleanup;
-
-      throw $i{excName};
-    }
+    };
   }
 #else
   private static function protectBuild(protected: Expr, cleanup: Expr, statusName: String)
