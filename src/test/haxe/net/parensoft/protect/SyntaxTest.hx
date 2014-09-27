@@ -18,7 +18,7 @@ class SyntaxText extends BuddySuite implements ProtectSyntax {
           },
           cleanup: control.push("clean")
         }
-        catch (e: String) { if ("needed" != e) throw e; }
+        catch (e: String) { if ("needed" != e) control.push("wrong"); }
 
         control.should.containExactly(["prot", "clean"]);
       });
@@ -35,7 +35,7 @@ class SyntaxText extends BuddySuite implements ProtectSyntax {
           @clean control.push("clean");
           control.push("no way here");
         }
-        catch (e: String) { if ("needed" != e) throw e; }
+        catch (e: String) { if ("needed" != e) control.push("wrong"); }
 
         control.should.containExactly(["entry", "prot", "clean"]);
       });
@@ -56,7 +56,7 @@ class SyntaxText extends BuddySuite implements ProtectSyntax {
             control.push("outer");
           }
         }
-        catch (e: String) { if ("out!" != e) throw e; }
+        catch (e: String) { if ("out!" != e) control.push("wrong"); }
         
         control.should.containExactly(["inner", "outer"]);
       });
