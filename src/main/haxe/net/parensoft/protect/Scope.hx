@@ -12,28 +12,28 @@ class Scope {
   public static macro function withExits(ex: Expr)
     return switch (ex) {
       case { expr: EBlock(el) }: {
-        transform(el);
+        transform(el, ex.pos);
       }
       default: Context.error("Scope.withExits requires a block", ex.pos);
     }
 
 #if macro
-  private static function transform(el: Array<Expr>) {
+  private static function transform(el: Array<Expr>, mpos: Position) {
     var ret = [];
 
     var arrName = genSym();
 
     for (exp in el) switch (exp) {
       case macro @scope $expr:
-        ret.push(macro $i{arrName}.unshift({ fail: null, run: function() ${checkReturns(expandMacros(expr))} }));
+        ret.push(macro $i{arrName}.unshift({ fail: null, run: function() $expr }));
       case macro @scope($when) $expr:
-        ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() ${checkReturns(expandMacros(expr))} }));
+        ret.push(macro $i{arrName}.unshift({ fail: $when, run: function() $expr }));
       case macro @SCOPE $expr:
         ret.push(macro $i{arrName}.unshift(
-              { fail: null, run: function() try ${checkReturns(expandMacros(expr))} catch (_: Dynamic) {} }));
+              { fail: null, run: function() try $expr catch (_: Dynamic) {} }));
       case macro @SCOPE($when) $expr:
         ret.push(macro $i{arrName}.unshift(
-              { fail: $when, run: function() try ${checkReturns(expandMacros(expr))} catch (_: Dynamic) {} }));
+              { fail: $when, run: function() try $expr catch (_: Dynamic) {} }));
       case { expr: EMeta({ name: "closes", params: []}, { expr: EVars(vars), pos: pos }) }: {
         for (vardecl in vars) {
           ret.push({ expr: EVars([ vardecl ]), pos: pos });
@@ -63,13 +63,14 @@ class Scope {
         }
       }
       default:
-        ret.push(expandMacros(exp));
+        ret.push(exp);
     }
 
     var statusName = genSym();
     var counter = genSym();
 
-    return macro {
+
+    var prep = macro {
       var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
 
       ${net.parensoft.protect.Protect.protectBuild(macro $b{ret}, macro {
@@ -78,8 +79,9 @@ class Scope {
 
       }, statusName)}
 
-
     };
+
+    return prep;
   }
 
 
