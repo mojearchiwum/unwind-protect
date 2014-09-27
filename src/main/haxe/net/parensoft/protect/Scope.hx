@@ -69,7 +69,7 @@ class Scope {
     var statusName = genSym();
     var counter = genSym();
 
-
+    /*
     var prep = macro {
       var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
 
@@ -80,17 +80,56 @@ class Scope {
       }, statusName)}
 
     };
+    */
 
-    return prep;
+    var prep = expandMacros({ expr: (macro {
+      var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
+
+      $b{ret};
+    }).expr, pos: mpos});
+
+    var block;
+    switch(prep.expr) {
+      case EBlock([_, { expr: EBlock(unmacroed), pos: bpos }]):
+        block = { expr: EBlock(unmacroed), pos: bpos };
+      default: throw "internal error";
+    }
+
+
+    
+    return checkReturns(macro {
+      var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
+
+      ${net.parensoft.protect.Protect.protectBuild(macro $block, macro {
+
+        for ($i{counter} in $i{arrName}) if ($i{counter}.fail != !$i{statusName}) ($i{counter}.run)();
+
+      }, statusName)}
+
+    }, arrName);
+
+
+
+
+    //return prep;
   }
 
 
-  private static function checkReturns(ex: Expr) 
+  private static function checkReturns(ex: Expr, arr: String) {
+    return switch(ex) {
+      case macro $arr.unshift({ fail: $when, run: ${{ expr: EFunction(_, fun) }} }): checkReturnsSub(fun.expr); ex;
+      default: ex.map(checkReturns.bind(_, arr));
+    }
+    
+  }
+
+  private static function checkReturnsSub(ex: Expr) {
     return switch(ex) {
       case { expr: EReturn(_) }: Context.fatalError("return not allowed in scope exits", ex.pos);
       case { expr: EFunction(_, _) }: ex;
-      default: ex.map(checkReturns);
+      default: ex.map(checkReturnsSub);
     }
+  }
 
 #else
   private static function transform(el: Array<Expr>) 

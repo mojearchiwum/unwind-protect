@@ -95,6 +95,18 @@ class ScopeTest extends BuddySuite {
         control.should.containExactly(["start", "close"]);
       });
 
+
+      /*
+      it("should disallow return in @scope", {
+        Scope.withExits({
+          @scope return;
+          1;
+        });
+        
+        1.should.be(2);
+      });
+      */
+
     });
 
   }
