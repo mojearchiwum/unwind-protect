@@ -76,7 +76,7 @@ class Protect {
   
         $cleanup;
   
-        throw $i{excName};
+        ${ rethrow(excName) };
       }
   
       ${ if(isVoid) macro {} else macro $i{retName} };

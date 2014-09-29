@@ -21,6 +21,20 @@ class Util {
 
     return '${base}_${genSymCounter}';
   }
+  
+#if macro
+  private static var platform: String =
+    if (Context.defined("neko")) "neko";
+    else if (Context.defined("cpp")) "cpp";
+    else if (Context.defined("php")) "php";
+    else null;
+
+    public static function rethrow(e: String) 
+      return if (platform != null) 
+        macro $i{platform}.Lib.rethrow($i{e});
+      else 
+        macro throw $i{e};
+#end
 
 }
 
