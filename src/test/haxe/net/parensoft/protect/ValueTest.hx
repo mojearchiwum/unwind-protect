@@ -16,8 +16,6 @@ class ValueTest extends BuddySuite {
           "not ok";
         });
 
-        Sys.println(value);
-
         value.should.be("ok");
 
       });
