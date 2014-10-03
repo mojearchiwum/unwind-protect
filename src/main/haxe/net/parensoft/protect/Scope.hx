@@ -69,19 +69,6 @@ class Scope {
     var statusName = genSym();
     var counter = genSym();
 
-    /*
-    var prep = macro {
-      var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
-
-      ${net.parensoft.protect.Protect.protectBuild(macro $b{ret}, macro {
-
-        for ($i{counter} in $i{arrName}) if ($i{counter}.fail != !$i{statusName}) ($i{counter}.run)();
-
-      }, statusName)}
-
-    };
-    */
-
     var typed: Util.TypedExpression = { expr: (macro {
       var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
 
@@ -94,7 +81,6 @@ class Scope {
         block = { expr: EBlock(unmacroed), pos: bpos };
       default: throw "internal error";
     }
-
 
     
     return checkReturns(macro {
