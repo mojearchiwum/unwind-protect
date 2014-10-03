@@ -20,6 +20,7 @@ The library's name is inspired by the
 ```UNWIND-PROTECT``` operator
 [found](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_unwind.htm#unwind-protect) in Common Lisp.
 
+**I consider this library feature complete as of 0.4.1.**
 
 ## Usage:
 
