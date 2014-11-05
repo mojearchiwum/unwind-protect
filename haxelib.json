@@ -4,8 +4,8 @@
     "license": "MIT",
     "classPath": "src/main/haxe",
     "tags": ["try-finally", "unwind-protect", "cross", "utility", "autoclose", "scope"],
-    "description": "Protected/cleanup blocks, scope exit expressions and autoclose variables for Haxe",
-    "version": "0.4.1",
-    "releasenote": "rethrow exceptions where available",
+    "description": "scope exit expressions, autoclose variables and protected (try/finally) for Haxe",
+    "version": "0.4.2",
+    "releasenote": "works with latest haxe",
     "contributors": ["jszymanski"]
 }
