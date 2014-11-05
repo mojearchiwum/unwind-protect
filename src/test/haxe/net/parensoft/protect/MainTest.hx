@@ -4,7 +4,8 @@ import buddy.*;
 import net.parensoft.protect.Protect;
 using buddy.Should;
 
-class MainTest extends BuddySuite implements Buddy {
+@:build(buddy.GenerateMain.build(["net.parensoft.protect"]))
+class MainTest extends BuddySuite {
 
   public function new() {
 
