@@ -69,11 +69,11 @@ class Scope {
     var statusName = genSym();
     var counter = genSym();
 
-    var typed: Util.TypedExpression = { expr: (macro {
+    var typed: Util.TypedExpression = ({ expr: (macro {
       var $arrName: Array<net.parensoft.protect.Scope.ExitFunc> = [];
 
       $b{ret};
-    }).expr, pos: mpos};
+    }).expr, pos: mpos} :Expr);
 
     var block;
     switch((typed: Expr).expr) {
