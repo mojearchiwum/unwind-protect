@@ -120,7 +120,6 @@ variables/expressions are found inside, the macro will work. That is, the code b
 as expected:
 
 ```
-#!haxe
 class Example implements ProtectSyntax {
 
 
